@@ -24,7 +24,7 @@ Just grab a precompiled binary from this [directory](platform-executables) and r
  ```sh
 uniclip
 ```
-Output:
+Example output:
 ```
 Starting a new clipboard!
 Run `uniclip 192.168.86.24:51607` to join this clipboard
@@ -34,3 +34,5 @@ Run `uniclip 192.168.86.24:51607` to join this clipboard
 just type what it says (`uniclip 192.168.86.24:51607`) on your other device which has uniclip and hit enter. That's it! Now you can copy from one device and paste on the other.
 
 You can even have multiple devices joined to the same clipboard (Just run that same command on the new device).
+
+Note: The devices have to be on the same local network
