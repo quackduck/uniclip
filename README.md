@@ -1,4 +1,4 @@
-# uniclip - Universal Clipboard
+# Uniclip - Universal Clipboard
 
 NOTE: This is a pre-release version of this software. It might erase your clipboard.
 
