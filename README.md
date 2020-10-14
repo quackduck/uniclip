@@ -2,6 +2,8 @@
 
 **Note: This is a pre-release version of this software. It could erase your clipboard when you copy something.**
 
+Thanks to [Aaryan](https://github.com/aaryanporwal) for the idea!
+
 # What is Uniclip?
 
 Apple users, did you know you could copy from one device and paste on the other? Wouldn't it be awesome if you could do that for non-Apple devices too?
