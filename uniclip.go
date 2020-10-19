@@ -28,7 +28,7 @@ Running just ` + "`uniclip`" + ` will start a new clipboard.
 It will also provide an address with which you can connect to the clipboard with another device.`
 
 var detectedOs = runtime.GOOS
-var listOfClients = make([]*bufio.Writer, 5)
+var listOfClients = make([]*bufio.Writer, 0)
 var localClipboard string
 var lock sync.Mutex
 
@@ -72,8 +72,7 @@ func handleClient(c net.Conn) {
 	w := bufio.NewWriter(c)
 	listOfClients = append(listOfClients, w)
 	defer c.Close()
-	go monitorSentClips(bufio.NewReader(c))
-	monitorLocalClip(w)
+	monitorSentAndLocal(bufio.NewReader(c), w)
 }
 
 func connectToServer(address string) {
@@ -84,25 +83,31 @@ func connectToServer(address string) {
 		return
 	}
 	fmt.Println("Connected to the clipboard")
-	go monitorSentClips(bufio.NewReader(c))
-	monitorLocalClip(bufio.NewWriter(c))
+	monitorSentAndLocal(bufio.NewReader(c), bufio.NewWriter(c))
 }
 
-func monitorLocalClip(w *bufio.Writer) {
-	for {
-		lock.Lock()
-		localClipboard = getLocalClip()
-		lock.Unlock()
-		sendClipboard(w, localClipboard)
-		for localClipboard == getLocalClip() {
-			time.Sleep(time.Second * time.Duration(secondsBetweenChecksForClipChange))
-		}
-	}
-}
+// func monitorLocalClip(w *bufio.Writer) {
+// 	for {
+// 		lock.Lock()
+// 		localClipboard = getLocalClip()
+// 		lock.Unlock()
+// 		sendClipboard(w, localClipboard)
+// 		for localClipboard == getLocalClip() {
+// 			time.Sleep(time.Second * time.Duration(secondsBetweenChecksForClipChange))
+// 		}
+// 	}
+// }
 
-func monitorSentClips(r *bufio.Reader) {
+func monitorSentAndLocal(r *bufio.Reader, w *bufio.Writer) {
 	var foreignClipboard string
 	for {
+		localClipboard = getLocalClip()
+		err := sendClipboard(w, localClipboard)
+		if err != nil {
+			handleError(err)
+			return
+		}
+		time.Sleep(time.Second * time.Duration(secondsBetweenChecksForClipChange))
 		s, err := r.ReadString('\n')
 		if err != nil {
 			handleError(err)
@@ -121,14 +126,17 @@ func monitorSentClips(r *bufio.Reader) {
 				}
 				foreignClipboard += s
 			}
-			lock.Lock() // don't let the goroutine that checks for changes do anything
 			setLocalClip(foreignClipboard)
-			localClipboard = foreignClipboard
-			lock.Unlock() // we've made sure the other goroutine won't have a false positive
+			// localClipboard = foreignClipboard
 			fmt.Println("Copied:" + "\n\"" + foreignClipboard + "\"\n")
+			fmt.Println(listOfClients)
 			for i, w := range listOfClients {
-				if w != nil && i != 0 { // don't send to first client, which is this client
-					sendClipboard(w, foreignClipboard)
+				if w != nil { // && i != 0 { // don't send to first client, which is this client
+					err := sendClipboard(w, foreignClipboard)
+					if err != nil {
+						listOfClients[i] = nil
+						handleError(err)
+					}
 				}
 			}
 			foreignClipboard = ""
@@ -136,19 +144,18 @@ func monitorSentClips(r *bufio.Reader) {
 	}
 }
 
-func sendClipboard(w *bufio.Writer, clipboard string) {
+func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var err error
 	clipString := "STARTCLIPBOARD\n" + clipboard + "\nENDCLIPBOARD\n"
 	_, err = w.WriteString(clipString)
 	if err != nil {
-		handleError(err)
-		return
+		return err
 	}
 	err = w.Flush()
 	if err != nil {
-		handleError(err)
-		return
+		return err
 	}
+	return nil
 }
 
 func getLocalClip() string {
@@ -169,7 +176,7 @@ func getLocalClip() string {
 		return errMsg
 	}
 	if detectedOs == "windows" {
-		return strings.TrimSuffix(string(out), "\n") // get-clipboard adds a newline to the end for some reason
+		return strings.TrimSuffix(string(out), "\n") // ps's get-clipboard adds a newline to the end for some reason
 	}
 	return string(out)
 }
