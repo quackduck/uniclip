@@ -63,7 +63,7 @@ func makeServer() {
 			handleError(err)
 			return
 		}
-		fmt.Println("Connected to a client")
+		fmt.Println("Connected to the device")
 		go handleClient(c)
 	}
 }
@@ -129,9 +129,9 @@ func monitorSentClips(r *bufio.Reader) {
 			setLocalClip(foreignClipboard)
 			localClipboard = foreignClipboard
 			lock.Unlock() // we've made sure the other goroutine won't have a false positive
-			fmt.Println("Copied:" + "\n\"" + foreignClipboard + "\"\n")
+			// fmt.Println("Copied:" + "\n\"" + foreignClipboard + "\"\n") // debugging
 			for i, w := range listOfClients {
-				if w != nil { // && i != 0 { // don't send to first client, which is this client
+				if w != nil {
 					err := sendClipboard(w, foreignClipboard)
 					if err != nil {
 						listOfClients[i] = nil
