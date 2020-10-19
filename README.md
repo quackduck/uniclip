@@ -14,7 +14,17 @@ You don't even have to sign in like you need to on Apple devices. You don't have
 
 # Installing
 
-Just grab a precompiled binary from this [directory](dist) and run it. (Even easier install coming soon)
+## macOS
+
+```
+brew install quackduck/quackduck/uniclip
+```
+or
+```
+curl https://raw.githubusercontent.com/quackduck/uniclip/master/dist/uniclip_darwin_amd64
+```
+## Windows
+Just grab a precompiled binary from this [directory](dist)
 
 # Usage
 
@@ -32,7 +42,7 @@ Run `uniclip 192.168.86.24:51607` to join this clipboard
 
 ```
 
-Just type what it says (`uniclip 192.168.86.24:51607`) on your other device which has Uniclip and hit enter. That's it! Now you can copy from one device and paste on the other.
+Just enter what it says (`uniclip 192.168.86.24:51607`) on your other device with Uniclip installed and hit enter. That's it! Now you can copy from one device and paste on the other.
 
 You can even have multiple devices joined to the same clipboard (Just run that same command on the new device).
 
