@@ -21,7 +21,8 @@ brew install quackduck/quackduck/uniclip
 ```
 or
 ```
-curl -L https://github.com/quackduck/uniclip/blob/master/dist/uniclip_darwin_amd64/uniclip\?raw=true > /usr/local/bin/uniclip
+curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_darwin_amd64/uniclip\?raw=true > /usr/local/bin/uniclip
+chmod +x /usr/local/bin/uniclip
 ```
 
 ## Linux
@@ -31,10 +32,12 @@ brew install quackduck/quackduck/uniclip
 ```
 or
 ```
-curl -L https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_amd64/uniclip\?raw=true > /usr/local/bin/uniclip
+curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_amd64/uniclip\?raw=true -o /usr/local/bin/uniclip # you might need to use sudo
+chmod +x /usr/local/bin/uniclip
 ```
 
 ## Windows
+
 Just grab a precompiled binary from this [directory](dist)
 
 # Usage
