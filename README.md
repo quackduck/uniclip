@@ -1,7 +1,5 @@
 # Uniclip - Universal Clipboard
 
-**Note: This is a pre-release version of this software. It could erase your clipboard when you copy something.**
-
 Thanks to [Aaryan](https://github.com/aaryanporwal) for the idea!
 
 # What is Uniclip?
