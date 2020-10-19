@@ -21,8 +21,19 @@ brew install quackduck/quackduck/uniclip
 ```
 or
 ```
-curl https://raw.githubusercontent.com/quackduck/uniclip/master/dist/uniclip_darwin_amd64
+curl -L https://github.com/quackduck/uniclip/blob/master/dist/uniclip_darwin_amd64/uniclip\?raw=true > /usr/local/bin/uniclip
 ```
+
+## Linux
+
+```
+brew install quackduck/quackduck/uniclip
+```
+or
+```
+curl -L https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_amd64/uniclip\?raw=true > /usr/local/bin/uniclip
+```
+
 ## Windows
 Just grab a precompiled binary from this [directory](dist)
 
