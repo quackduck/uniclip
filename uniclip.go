@@ -28,7 +28,7 @@ Running just ` + "`uniclip`" + ` will start a new clipboard.
 It will also provide an address with which you can connect to the clipboard with another device.`
 
 var detectedOs = runtime.GOOS
-var listOfClients = make([]*bufio.Writer, 5)
+var listOfClients = make([]*bufio.Writer, 0)
 var localClipboard string
 var lock sync.Mutex
 
@@ -93,7 +93,11 @@ func monitorLocalClip(w *bufio.Writer) {
 		lock.Lock()
 		localClipboard = getLocalClip()
 		lock.Unlock()
-		sendClipboard(w, localClipboard)
+		err := sendClipboard(w, localClipboard)
+		if err != nil {
+			handleError(err)
+			return
+		}
 		for localClipboard == getLocalClip() {
 			time.Sleep(time.Second * time.Duration(secondsBetweenChecksForClipChange))
 		}
@@ -127,8 +131,12 @@ func monitorSentClips(r *bufio.Reader) {
 			lock.Unlock() // we've made sure the other goroutine won't have a false positive
 			fmt.Println("Copied:" + "\n\"" + foreignClipboard + "\"\n")
 			for i, w := range listOfClients {
-				if w != nil && i != 0 { // don't send to first client, which is this client
-					sendClipboard(w, foreignClipboard)
+				if w != nil { // && i != 0 { // don't send to first client, which is this client
+					err := sendClipboard(w, foreignClipboard)
+					if err != nil {
+						listOfClients[i] = nil
+						handleError(err)
+					}
 				}
 			}
 			foreignClipboard = ""
@@ -136,19 +144,18 @@ func monitorSentClips(r *bufio.Reader) {
 	}
 }
 
-func sendClipboard(w *bufio.Writer, clipboard string) {
+func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var err error
 	clipString := "STARTCLIPBOARD\n" + clipboard + "\nENDCLIPBOARD\n"
 	_, err = w.WriteString(clipString)
 	if err != nil {
-		handleError(err)
-		return
+		return err
 	}
 	err = w.Flush()
 	if err != nil {
-		handleError(err)
-		return
+		return err
 	}
+	return nil
 }
 
 func getLocalClip() string {
@@ -169,7 +176,7 @@ func getLocalClip() string {
 		return errMsg
 	}
 	if detectedOs == "windows" {
-		return strings.TrimSuffix(string(out), "\n") // get-clipboard adds a newline to the end for some reason
+		return strings.TrimSuffix(string(out), "\n") // ps's get-clipboard adds a newline to the end for some reason
 	}
 	return string(out)
 }
