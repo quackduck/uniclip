@@ -14,7 +14,7 @@ You don't even have to sign in like you need to on Apple devices. You don't have
 
 # Installing
 
-Just grab a precompiled binary from this [directory](build) and run it. (Even easier install coming soon)
+Just grab a precompiled binary from this [directory](dist) and run it. (Even easier install coming soon)
 
 # Usage
 
