@@ -32,3 +32,20 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+brews:
+  -
+    # Repository to push the tap to.
+    tap:
+      owner: quackduck
+      name: homebrew-quackduck
+    
+    # Folder inside the repository to put the formula.
+    # Default is the root folder.
+    folder: uniclip
+    # Your app's homepage.
+    # Default is empty.
+    homepage: 'https://github.com/quackduck/uniclip'
+
+    # Your app's description.
+    # Default is empty.
+    description: 'Cross-platform shared clipboard'
