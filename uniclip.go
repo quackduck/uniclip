@@ -186,7 +186,9 @@ func setLocalClip(s string) {
 	if detectedOs == "darwin" {
 		copyCmd = exec.Command("pbcopy")
 	} else if detectedOs == "windows" {
-		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard")
+		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard -Value "+"\""+s+"\"")
+	} else {
+		copyCmd = exec.Command("")
 	}
 	in, err := copyCmd.StdinPipe()
 	if err != nil {
