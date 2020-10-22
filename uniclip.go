@@ -167,6 +167,14 @@ func getLocalClip() string {
 		cmd = exec.Command("pbpaste")
 	} else if detectedOs == "windows" {
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
+	} else {
+		if _, err := exec.LookPath("xclip"); err == nil {
+			cmd = exec.Command("xclip", "-out", "-selection", "clipboard")
+		} else if _, err := exec.LookPath("xsel"); err == nil {
+			cmd = exec.Command("xsel", "--output", "--clipboard")
+		} else {
+			fmt.Println("Sorry, uniclip won't work if you don't have xsel or xclip installed :(")
+		}
 	}
 	if out, err = cmd.CombinedOutput(); err != nil {
 		handleError(err)
@@ -176,7 +184,7 @@ func getLocalClip() string {
 		return errMsg
 	}
 	if detectedOs == "windows" {
-		return strings.TrimSuffix(string(out), "\n") // ps's get-clipboard adds a newline to the end for some reason
+		return strings.TrimSuffix(string(out), "\r\n") // ps's get-clipboard adds a (windows) newline to the end for some reason
 	}
 	return string(out)
 }
@@ -188,24 +196,30 @@ func setLocalClip(s string) {
 	} else if detectedOs == "windows" {
 		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard -Value "+"\""+s+"\"")
 	} else {
-		copyCmd = exec.Command("")
-	}
-	in, err := copyCmd.StdinPipe()
-	if err != nil {
-		handleError(err)
-		return
+		if _, err := exec.LookPath("xclip"); err == nil {
+			copyCmd = exec.Command("xclip", "-in", "-selection", "clipboard")
+		} else if _, err := exec.LookPath("xsel"); err == nil {
+			copyCmd = exec.Command("xsel", "--input", "--clipboard")
+		}
 	}
 	if err := copyCmd.Start(); err != nil {
 		handleError(err)
 		return
 	}
-	if _, err := in.Write([]byte(s)); err != nil {
-		handleError(err)
-		return
-	}
-	if err := in.Close(); err != nil {
-		handleError(err)
-		return
+	if detectedOs != "windows" {
+		in, err := copyCmd.StdinPipe()
+		if err != nil {
+			handleError(err)
+			return
+		}
+		if _, err := in.Write([]byte(s)); err != nil {
+			handleError(err)
+			return
+		}
+		if err := in.Close(); err != nil {
+			handleError(err)
+			return
+		}
 	}
 	if err := copyCmd.Wait(); err != nil {
 		handleError(err)
