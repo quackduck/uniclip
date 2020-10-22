@@ -23,7 +23,9 @@ curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_darwin_a
 chmod +x /usr/local/bin/uniclip
 ```
 
-## Linux
+## GNU/Linux
+
+*Note: xclip or xsel is needed for uniclip to work on GNU/Linux*
 
 ```
 brew install quackduck/quackduck/uniclip
