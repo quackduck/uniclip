@@ -14,11 +14,11 @@ You don't even have to sign in like you need to on Apple devices. You don't have
 
 ## macOS
 
-```
+```sh
 brew install quackduck/quackduck/uniclip
 ```
 or
-```
+```sh
 curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_darwin_amd64/uniclip\?raw=true > /usr/local/bin/uniclip
 chmod +x /usr/local/bin/uniclip
 ```
@@ -27,11 +27,11 @@ chmod +x /usr/local/bin/uniclip
 
 *Note: xclip or xsel is needed for uniclip to work on GNU/Linux*
 
-```
+```sh
 brew install quackduck/quackduck/uniclip
 ```
 or
-```
+```sh
 curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_amd64/uniclip\?raw=true -o /usr/local/bin/uniclip # you might need to use sudo
 chmod +x /usr/local/bin/uniclip
 ```
