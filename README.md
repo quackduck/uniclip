@@ -15,7 +15,7 @@ You don't even have to sign in like you need to on Apple devices. You don't have
 ## macOS
 
 ```sh
-brew install quackduck/quackduck/uniclip
+brew install quackduck/tap/uniclip
 ```
 or
 ```sh
@@ -28,7 +28,7 @@ chmod +x /usr/local/bin/uniclip
 *Note: xclip or xsel is needed for uniclip to work on GNU/Linux*
 
 ```sh
-brew install quackduck/quackduck/uniclip
+brew install quackduck/tap/uniclip
 ```
 or
 ```sh
