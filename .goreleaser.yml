@@ -46,7 +46,7 @@ brews:
     # Repository to push the tap to.
     tap:
       owner: quackduck
-      name: homebrew-quackduck
+      name: homebrew-tap
     
     # Folder inside the repository to put the formula.
     # Default is the root folder.
