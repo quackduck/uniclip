@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -168,12 +169,16 @@ func getLocalClip() string {
 	} else if detectedOs == "windows" {
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
 	} else {
+		//Unix
 		if _, err := exec.LookPath("xclip"); err == nil {
 			cmd = exec.Command("xclip", "-out", "-selection", "clipboard")
 		} else if _, err := exec.LookPath("xsel"); err == nil {
 			cmd = exec.Command("xsel", "--output", "--clipboard")
+		} else if _, err := exec.LookPath("wl-paste"); err == nil {
+			cmd = exec.Command("wl-paste", "--no-newline")
 		} else {
-			fmt.Println("Sorry, uniclip won't work if you don't have xsel or xclip installed :(")
+			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip or wayland installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
+			os.Exit(2)
 		}
 	}
 	if out, err = cmd.CombinedOutput(); err != nil {
@@ -200,13 +205,18 @@ func setLocalClip(s string) {
 			copyCmd = exec.Command("xclip", "-in", "-selection", "clipboard")
 		} else if _, err := exec.LookPath("xsel"); err == nil {
 			copyCmd = exec.Command("xsel", "--input", "--clipboard")
+		} else if _, err := exec.LookPath("wl-paste"); err == nil {
+			copyCmd = exec.Command("wl-copy")
+		} else {
+			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip or wayland installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
+			os.Exit(2)
 		}
 	}
 	if err := copyCmd.Start(); err != nil {
 		handleError(err)
 		return
 	}
-	if detectedOs != "windows" {
+	if detectedOs != "windows" { // the clipboard has already been set in the arguments for the windows command
 		in, err := copyCmd.StdinPipe()
 		if err != nil {
 			handleError(err)
@@ -244,7 +254,7 @@ func handleError(err error) {
 	if err == io.EOF {
 		fmt.Println("Disconnected from a device")
 	} else {
-		fmt.Println("An error occurred:", err)
+		_, _ = fmt.Fprintln(os.Stderr, "uniclip: error:", err)
 	}
 	return
 }
