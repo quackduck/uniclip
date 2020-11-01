@@ -212,21 +212,25 @@ func setLocalClip(s string) {
 			os.Exit(2)
 		}
 	}
-	if err := copyCmd.Start(); err != nil {
-		handleError(err)
-		return
-	}
+	var in io.WriteCloser
+	var err error
 	if detectedOs != "windows" { // the clipboard has already been set in the arguments for the windows command
-		in, err := copyCmd.StdinPipe()
+		in, err = copyCmd.StdinPipe()
 		if err != nil {
 			handleError(err)
 			return
 		}
-		if _, err := in.Write([]byte(s)); err != nil {
+	}
+	if err = copyCmd.Start(); err != nil {
+		handleError(err)
+		return
+	}
+	if detectedOs != "windows" {
+		if _, err = in.Write([]byte(s)); err != nil {
 			handleError(err)
 			return
 		}
-		if err := in.Close(); err != nil {
+		if err = in.Close(); err != nil {
 			handleError(err)
 			return
 		}
