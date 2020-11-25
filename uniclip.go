@@ -17,38 +17,48 @@ import (
 
 var secondsBetweenChecksForClipChange = 1
 var helpMsg = `Uniclip - Universal Clipboard
-With Uniclip, you can copy from one device and paste on the other.
+With Uniclip, you can copy from one device and paste on another.
 
-Usage: uniclip [ <address> | --help/-h ]
+Usage: uniclip [--verbose/-v] [ <address> | --help/-h ]
 Examples:
    uniclip                          # start a new clipboard
    uniclip 192.168.86.24:53701      # join the clipboard at the address - 192.168.86.24:53701
    uniclip --help                   # print this help message
-
+   uniclip -v 192.168.86.24:53701   # enable verbose output 
 Running just ` + "`uniclip`" + ` will start a new clipboard.
-It will also provide an address with which you can connect to the clipboard with another device.`
+It will also provide an address with which you can connect to the same clipboard with another device.
+Refer to https://github.com/quackduck/uniclip for more information`
 
 var detectedOs = runtime.GOOS
 var listOfClients = make([]*bufio.Writer, 0)
 var localClipboard string
 var lock sync.Mutex
+var debug = false
 
+// TODO: Add a way to reconnect (if computer goes to sleep)
 func main() {
-	if len(os.Args) == 2 {
+	if len(os.Args) == 2 || len(os.Args) == 3 {
 		if os.Args[1] == "--help" || os.Args[1] == "-h" {
 			fmt.Println(helpMsg)
 			return
 		}
+		if os.Args[1] == "--verbose" || os.Args[1] == "-v" {
+			debug = true
+			os.Args = os.Args[1:]
+			main()
+			return
+		}
 		connectToServer(os.Args[1])
 	} else if len(os.Args) == 1 {
-		fmt.Println("Starting a new clipboard!")
 		makeServer()
 	} else {
-		fmt.Println("Too many arguments.\nTo start a new clipboard, use `uniclip`.\nTo connect to a clipboard, use `uniclip <IP>:<PORT>`")
+		handleError(errors.New("too many arguments"))
+		fmt.Println(helpMsg)
 	}
 }
 
 func makeServer() {
+	fmt.Println("Starting a new clipboard")
 	l, err := net.Listen("tcp4", "0.0.0.0:")
 	if err != nil {
 		handleError(err)
@@ -64,7 +74,7 @@ func makeServer() {
 			handleError(err)
 			return
 		}
-		fmt.Println("Connected to the device")
+		fmt.Println("Connected to a device")
 		go handleClient(c)
 	}
 }
@@ -94,6 +104,9 @@ func monitorLocalClip(w *bufio.Writer) {
 		lock.Lock()
 		localClipboard = getLocalClip()
 		lock.Unlock()
+		if debug {
+			fmt.Println("clipboard changed; sending new one. localClipboard =", localClipboard)
+		}
 		err := sendClipboard(w, localClipboard)
 		if err != nil {
 			handleError(err)
@@ -130,13 +143,19 @@ func monitorSentClips(r *bufio.Reader) {
 			setLocalClip(foreignClipboard)
 			localClipboard = foreignClipboard
 			lock.Unlock() // we've made sure the other goroutine won't have a false positive
-			// fmt.Println("Copied:" + "\n\"" + foreignClipboard + "\"\n") // debugging
+			if debug {
+				fmt.Println("rcvd:", foreignClipboard) // debugging
+				if foreignClipboard == "" {
+					fmt.Println("received empty string")
+				}
+			}
 			for i, w := range listOfClients {
 				if w != nil {
 					err := sendClipboard(w, foreignClipboard)
 					if err != nil {
 						listOfClients[i] = nil
-						handleError(err)
+						fmt.Println("error when trying to send the clipboard to a device. Will not contact that device again.")
+						//handleError(err)
 					}
 				}
 			}
@@ -148,6 +167,13 @@ func monitorSentClips(r *bufio.Reader) {
 func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var err error
 	clipString := "STARTCLIPBOARD\n" + clipboard + "\nENDCLIPBOARD\n"
+	if debug {
+		if clipboard == "" {
+			fmt.Println("was going to send empty string but skipping")
+			return nil
+		}
+		fmt.Println("sent:", clipboard) //debugging
+	}
 	_, err = w.WriteString(clipString)
 	if err != nil {
 		return err
@@ -169,7 +195,7 @@ func getLocalClip() string {
 	} else if detectedOs == "windows" {
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
 	} else {
-		//Unix
+		// Unix - check what's available
 		if _, err := exec.LookPath("xclip"); err == nil {
 			cmd = exec.Command("xclip", "-out", "-selection", "clipboard")
 		} else if _, err := exec.LookPath("xsel"); err == nil {
@@ -189,7 +215,7 @@ func getLocalClip() string {
 		return errMsg
 	}
 	if detectedOs == "windows" {
-		return strings.TrimSuffix(string(out), "\r\n") // ps's get-clipboard adds a (windows) newline to the end for some reason
+		return strings.TrimSuffix(string(out), "\r\n") // powershell's get-clipboard adds a windows newline to the end for some reason
 	}
 	return string(out)
 }
