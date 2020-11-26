@@ -11,6 +11,8 @@ assignees: ''
 
 **Description of the bug**
 
+**Verbose output (Use the `-v` option)**
+
 **Steps to Reproduce**
 
 **Expected behavior**
