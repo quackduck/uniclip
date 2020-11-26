@@ -5,34 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="88515c99-882a-4ca4-82e4-ac859891607b" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/dist/CHANGELOG.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/checksums.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/config.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip.rb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_Darwin_x86_64.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_Linux_32-bit.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_Linux_arm64.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_Linux_armv6.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_Linux_x86_64.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_Windows_32-bit.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_Windows_x86_64.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_freebsd_32-bit.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_freebsd_arm64.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_freebsd_armv6.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_1.3.0_freebsd_x86_64.tar.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_darwin_amd64/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_freebsd_386/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_freebsd_amd64/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_freebsd_arm64/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_freebsd_arm_6/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_linux_386/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_linux_amd64/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_linux_arm64/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_linux_arm_6/uniclip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_windows_386/uniclip.exe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/uniclip_windows_amd64/uniclip.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/CHANGELOG.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/checksums.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/config.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip.rb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_Darwin_x86_64.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_Linux_32-bit.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_Linux_arm64.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_Linux_armv6.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_Linux_x86_64.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_Windows_32-bit.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_Windows_x86_64.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_freebsd_32-bit.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_freebsd_arm64.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_freebsd_armv6.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_1.2.1_freebsd_x86_64.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_darwin_amd64/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_freebsd_386/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_freebsd_amd64/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_freebsd_arm64/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_freebsd_arm_6/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_linux_386/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_linux_amd64/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_linux_arm64/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_linux_arm_6/uniclip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_windows_386/uniclip.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/uniclip_windows_amd64/uniclip.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/uniclip.go" beforeDir="false" afterPath="$PROJECT_DIR$/uniclip.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,5 +98,9 @@
     </state>
     <state x="152" y="97" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1606118202962" />
     <state x="152" y="118" key="SettingsEditor/0.23.1440.877@0.23.1440.877" timestamp="1603532738584" />
+    <state x="384" y="207" width="670" height="676" key="search.everywhere.popup" timestamp="1606294773369">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="384" y="207" width="670" height="676" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1606294773369" />
   </component>
 </project>
