@@ -60,4 +60,18 @@ Just enter what it says (`uniclip 192.168.86.24:51607`) on your other device wit
 
 You can even have multiple devices joined to the same clipboard (Just run that same command on the new device).
 
-**Note: The devices have to be on the same local network (eg. connected to the same WiFi)**
+```
+Uniclip - Universal Clipboard
+With Uniclip, you can copy from one device and paste on another.
+
+Usage: uniclip [--verbose/-v] [ <address> | --help/-h ]
+Examples:
+   uniclip                          # start a new clipboard
+   uniclip 192.168.86.24:53701      # join the clipboard at the address - 192.168.86.24:53701
+   uniclip --help                   # print this help message
+   uniclip -v 192.168.86.24:53701   # enable verbose output
+Running just `uniclip` will start a new clipboard.
+It will also provide an address with which you can connect to the same clipboard with another device.
+```
+
+**Note: The devices have to be on the same local network (eg. connected to the same WiFi).**
