@@ -202,8 +202,10 @@ func getLocalClip() string {
 			cmd = exec.Command("xsel", "--output", "--clipboard")
 		} else if _, err := exec.LookPath("wl-paste"); err == nil {
 			cmd = exec.Command("wl-paste", "--no-newline")
+		} else if _, err := exec.LookPath("termux-clipboard-set"); err == nil {
+			cmd = exec.Command("termux-clipboard-set")
 		} else {
-			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip or wayland installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
+			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip, wayland or Termux installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
 			os.Exit(2)
 		}
 	}
@@ -233,8 +235,10 @@ func setLocalClip(s string) {
 			copyCmd = exec.Command("xsel", "--input", "--clipboard")
 		} else if _, err := exec.LookPath("wl-paste"); err == nil {
 			copyCmd = exec.Command("wl-copy")
+		} else if _, err := exec.LookPath("termux-clipboard-get"); err == nil {
+			copyCmd = exec.Command("termux-clipboard-get")
 		} else {
-			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip or wayland installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
+			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip, wayland or Termux installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
 			os.Exit(2)
 		}
 	}
