@@ -87,3 +87,6 @@ pkg install termux-api
 
 Just grab a precompiled binary from this [directory](dist)
 
+
+# Have a question, idea or just want to share something? Head over to [Discussions](https://github.com/quackduck/uniclip/discussions)
+
