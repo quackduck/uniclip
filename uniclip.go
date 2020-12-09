@@ -238,7 +238,7 @@ func setLocalClip(s string) {
 		} else if _, err := exec.LookPath("termux-clipboard-get"); err == nil {
 			copyCmd = exec.Command("termux-clipboard-get")
 		} else {
-			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip, wayland or Termux installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
+			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip, wayland or Termux:API installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
 			os.Exit(2)
 		}
 	}
