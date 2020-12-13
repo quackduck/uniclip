@@ -15,46 +15,54 @@ import (
 	"time"
 )
 
-var secondsBetweenChecksForClipChange = 1
-var helpMsg = `Uniclip - Universal Clipboard
+var (
+	secondsBetweenChecksForClipChange = 1
+	helpMsg                           = `Uniclip - Universal Clipboard
 With Uniclip, you can copy from one device and paste on another.
 
-Usage: uniclip [--verbose/-v] [ <address> | --help/-h ]
+Usage: uniclip [--debug/-d] [ <address> | --help/-h ]
 Examples:
    uniclip                          # start a new clipboard
-   uniclip 192.168.86.24:53701      # join the clipboard at the address - 192.168.86.24:53701
-   uniclip --help                   # print this help message
-   uniclip -v 192.168.86.24:53701   # enable verbose output 
+   uniclip 192.168.86.24:53701      # join the clipboard at 192.168.86.24:53701
+   uniclip -d                       # start a new clipboard with verbose output
+   uniclip -d 192.168.86.24:53701   # join the clipboard with verbose output 
 Running just ` + "`uniclip`" + ` will start a new clipboard.
 It will also provide an address with which you can connect to the same clipboard with another device.
 Refer to https://github.com/quackduck/uniclip for more information`
-
-var detectedOs = runtime.GOOS
-var listOfClients = make([]*bufio.Writer, 0)
-var localClipboard string
-var lock sync.Mutex
-var debug = false
+	detectedOs     = runtime.GOOS
+	listOfClients  = make([]*bufio.Writer, 0)
+	localClipboard string
+	lock           sync.Mutex
+	printDebugInfo = false
+	version        = "v2.0.0"
+)
 
 // TODO: Add a way to reconnect (if computer goes to sleep)
 func main() {
-	if len(os.Args) == 2 || len(os.Args) == 3 {
-		if os.Args[1] == "--help" || os.Args[1] == "-h" {
-			fmt.Println(helpMsg)
-			return
-		}
-		if os.Args[1] == "--verbose" || os.Args[1] == "-v" {
-			debug = true
-			os.Args = os.Args[1:]
-			main()
-			return
-		}
-		connectToServer(os.Args[1])
-	} else if len(os.Args) == 1 {
-		makeServer()
-	} else {
+	if len(os.Args) > 2 {
 		handleError(errors.New("too many arguments"))
 		fmt.Println(helpMsg)
+		return
 	}
+	if hasOption, _ := argsHaveOption("help", "h"); hasOption {
+		fmt.Println(helpMsg)
+		return
+	}
+	if hasOption, i := argsHaveOption("debug", "d"); hasOption {
+		printDebugInfo = true
+		os.Args = removeElemFromSlice(os.Args, i) // delete the debug option and run again
+		main()
+		return
+	}
+	if hasOption, _ := argsHaveOption("version", "v"); hasOption {
+		fmt.Println(version)
+		return
+	}
+	if len(os.Args) == 2 { // has exactly one argument
+		connectToServer(os.Args[1])
+		return
+	}
+	makeServer()
 }
 
 func makeServer() {
@@ -104,9 +112,7 @@ func monitorLocalClip(w *bufio.Writer) {
 		lock.Lock()
 		localClipboard = getLocalClip()
 		lock.Unlock()
-		if debug {
-			fmt.Println("clipboard changed; sending new one. localClipboard =", localClipboard)
-		}
+		verbose("clipboard changed so sending it. localClipboard =", localClipboard)
 		err := sendClipboard(w, localClipboard)
 		if err != nil {
 			handleError(err)
@@ -143,14 +149,13 @@ func monitorSentClips(r *bufio.Reader) {
 			setLocalClip(foreignClipboard)
 			localClipboard = foreignClipboard
 			lock.Unlock() // we've made sure the other goroutine won't have a false positive
-			if debug {
-				fmt.Println("rcvd:", foreignClipboard) // debugging
-				if foreignClipboard == "" {
-					fmt.Println("received empty string")
-				}
+			verbose("rcvd:", foreignClipboard)
+			if foreignClipboard == "" {
+				verbose("received empty string")
 			}
 			for i, w := range listOfClients {
 				if w != nil {
+					verbose("Sending received clipboard to", w)
 					err := sendClipboard(w, foreignClipboard)
 					if err != nil {
 						listOfClients[i] = nil
@@ -167,13 +172,11 @@ func monitorSentClips(r *bufio.Reader) {
 func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var err error
 	clipString := "STARTCLIPBOARD\n" + clipboard + "\nENDCLIPBOARD\n"
-	if debug {
-		if clipboard == "" {
-			fmt.Println("was going to send empty string but skipping")
-			return nil
-		}
-		fmt.Println("sent:", clipboard) //debugging
+	if clipboard == "" {
+		verbose("was going to send empty string but skipping")
+		return nil
 	}
+	verbose("sent:", clipboard)
 	_, err = w.WriteString(clipString)
 	if err != nil {
 		return err
@@ -189,7 +192,6 @@ func getLocalClip() string {
 	var out []byte
 	var err error
 	var cmd *exec.Cmd
-	errMsg := "An error occurred wile getting the local clipboard"
 	if detectedOs == "darwin" {
 		cmd = exec.Command("pbpaste")
 	} else if detectedOs == "windows" {
@@ -214,7 +216,7 @@ func getLocalClip() string {
 		if exiterr, ok := err.(*exec.ExitError); ok {
 			fmt.Println(string(exiterr.Stderr))
 		}
-		return errMsg
+		return "An error occurred wile getting the local clipboard"
 	}
 	if detectedOs == "windows" {
 		return strings.TrimSuffix(string(out), "\r\n") // powershell's get-clipboard adds a windows newline to the end for some reason
@@ -233,7 +235,7 @@ func setLocalClip(s string) {
 			copyCmd = exec.Command("xclip", "-in", "-selection", "clipboard")
 		} else if _, err := exec.LookPath("xsel"); err == nil {
 			copyCmd = exec.Command("xsel", "--input", "--clipboard")
-		} else if _, err := exec.LookPath("wl-paste"); err == nil {
+		} else if _, err := exec.LookPath("wl-copy"); err == nil {
 			copyCmd = exec.Command("wl-copy")
 		} else if _, err := exec.LookPath("termux-clipboard-set"); err == nil {
 			copyCmd = exec.Command("termux-clipboard-set")
@@ -286,9 +288,29 @@ func getOutboundIP() net.IP {
 
 func handleError(err error) {
 	if err == io.EOF {
-		fmt.Println("Disconnected from a device")
+		fmt.Println("Disconnected")
 	} else {
-		_, _ = fmt.Fprintln(os.Stderr, "uniclip: error:", err)
+		_, _ = fmt.Fprintln(os.Stderr, "error: ["+err.Error()+"]")
 	}
 	return
+}
+
+func verbose(a ...interface{}) {
+	if printDebugInfo {
+		fmt.Println("verbose:", a)
+	}
+}
+
+func argsHaveOption(long string, short string) (hasOption bool, foundAt int) {
+	for i := 1; i < len(os.Args); i++ { // start from 1 so executable path is not checked (isn't an argument)
+		if os.Args[i] == "--"+long || os.Args[i] == "-"+short {
+			return true, i
+		}
+	}
+	return false, 0
+}
+
+// keep order
+func removeElemFromSlice(slice []string, i int) []string {
+	return append(slice[:i], slice[i+1:]...)
 }
