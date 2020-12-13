@@ -11,12 +11,12 @@ assignees: ''
 
 **Description of the bug**
 
-**Verbose output (Use the `-v` option)**
+**Verbose output (Use the `--debug` option)**
 
 **Steps to Reproduce**
 
 **Expected behavior**
 
-**OS and Uniclip version:**
+**OS and Uniclip version**
 
 **Additional info**
