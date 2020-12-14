@@ -24,8 +24,8 @@ Usage: uniclip [--debug/-d] [ <address> | --help/-h ]
 Examples:
    uniclip                          # start a new clipboard
    uniclip 192.168.86.24:53701      # join the clipboard at 192.168.86.24:53701
-   uniclip -d                       # start a new clipboard with verbose output
-   uniclip -d 192.168.86.24:53701   # join the clipboard with verbose output 
+   uniclip -d                       # start a new clipboard with debug output
+   uniclip -d 192.168.86.24:53701   # join the clipboard with debug output 
 Running just ` + "`uniclip`" + ` will start a new clipboard.
 It will also provide an address with which you can connect to the same clipboard with another device.
 Refer to https://github.com/quackduck/uniclip for more information`
@@ -112,7 +112,7 @@ func monitorLocalClip(w *bufio.Writer) {
 		lock.Lock()
 		localClipboard = getLocalClip()
 		lock.Unlock()
-		verbose("clipboard changed so sending it. localClipboard =", localClipboard)
+		debug("clipboard changed so sending it. localClipboard =", localClipboard)
 		err := sendClipboard(w, localClipboard)
 		if err != nil {
 			handleError(err)
@@ -149,13 +149,13 @@ func monitorSentClips(r *bufio.Reader) {
 			setLocalClip(foreignClipboard)
 			localClipboard = foreignClipboard
 			lock.Unlock() // we've made sure the other goroutine won't have a false positive
-			verbose("rcvd:", foreignClipboard)
+			debug("rcvd:", foreignClipboard)
 			if foreignClipboard == "" {
-				verbose("received empty string")
+				debug("received empty string")
 			}
 			for i, w := range listOfClients {
 				if w != nil {
-					verbose("Sending received clipboard to", w)
+					debug("Sending received clipboard to", w)
 					err := sendClipboard(w, foreignClipboard)
 					if err != nil {
 						listOfClients[i] = nil
@@ -173,10 +173,10 @@ func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var err error
 	clipString := "STARTCLIPBOARD\n" + clipboard + "\nENDCLIPBOARD\n"
 	if clipboard == "" {
-		verbose("was going to send empty string but skipping")
+		debug("was going to send empty string but skipping")
 		return nil
 	}
-	verbose("sent:", clipboard)
+	debug("sent:", clipboard)
 	_, err = w.WriteString(clipString)
 	if err != nil {
 		return err
@@ -295,7 +295,7 @@ func handleError(err error) {
 	return
 }
 
-func verbose(a ...interface{}) {
+func debug(a ...interface{}) {
 	if printDebugInfo {
 		fmt.Println("verbose:", a)
 	}
