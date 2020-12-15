@@ -1,16 +1,12 @@
 # Uniclip - Universal Clipboard
 
-Thanks to [Aaryan](https://github.com/aaryanporwal) for the idea!
-
-# What is Uniclip?
-
 Apple users, did you know you could copy from one device and paste on the other? Wouldn't it be awesome if you could do that for non-Apple devices too?
 
 Now you can, Apple device or not!
 
 You don't even have to sign in like you need to on Apple devices. You don't have to install Go either!
 
-# Usage
+## Usage
 
 Run this to start a new clipboard:
 
@@ -28,7 +24,7 @@ Run `uniclip 192.168.86.24:51607` to join this clipboard
 
 Just enter what it says (`uniclip 192.168.86.24:51607`) on your other device with Uniclip installed and hit enter. That's it! Now you can copy from one device and paste on the other.
 
-You can even have multiple devices joined to the same clipboard (Just run that same command on the new device).
+You can even have multiple devices joined to the same clipboard (just run that same command on the new device).
 
 ```
 Uniclip - Universal Clipboard
@@ -46,9 +42,9 @@ It will also provide an address with which you can connect to the same clipboard
 
 *Note: The devices have to be on the same local network (eg. connected to the same WiFi) unless the device has a public IP with all ports routed to it. (use the public IP instead of what Uniclip prints in this case)*
 
-# Installing
+## Installing
 
-## macOS
+### macOS
 
 ```sh
 brew install quackduck/tap/uniclip
@@ -59,7 +55,7 @@ curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_darwin_a
 chmod +x /usr/local/bin/uniclip
 ```
 
-## GNU/Linux
+### GNU/Linux
 
 *Note: At least one of xsel, xclip or wayland is needed for Uniclip to work on GNU/Linux*
 
@@ -71,9 +67,9 @@ or
 curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_amd64/uniclip\?raw=true -o /usr/local/bin/uniclip # you might need to use sudo
 chmod +x /usr/local/bin/uniclip
 ```
-*Note: This option is for amd64/x86_64 architectures. For other architectures, change the architecture (by referring to [this](dist)) in the url.*
+*Note: This option is for amd64/x86_64 architectures. For other architectures, change the architecture (by referring to [dist/](dist)) in the url.*
 
-## Android
+### Android
 ```sh
 curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_arm64/uniclip\?raw=true -o ~/../usr/bin/uniclip
 chmod +x ~/../usr/bin/uniclip
@@ -83,10 +79,13 @@ Then, install the Termux:API package from the command line (in Termux) using:
 ```sh
 pkg install termux-api
 ```
-## Windows
+### Windows
 
 Just grab a precompiled binary from this [directory](dist)
 
 
-# Have a question, idea or just want to share something? Head over to [Discussions](https://github.com/quackduck/uniclip/discussions)
+## Any other business
 
+Have a question, idea or just want to share something? Head over to [Discussions](https://github.com/quackduck/uniclip/discussions)
+
+Thanks to [Aaryan](https://github.com/aaryanporwal) for the idea!
