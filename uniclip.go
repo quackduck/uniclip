@@ -11,7 +11,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -25,21 +24,19 @@ Examples:
    uniclip                          # start a new clipboard
    uniclip 192.168.86.24:53701      # join the clipboard at 192.168.86.24:53701
    uniclip -d                       # start a new clipboard with debug output
-   uniclip -d 192.168.86.24:53701   # join the clipboard with debug output 
+   uniclip -d 192.168.86.24:53701   # join the clipboard with debug output
 Running just ` + "`uniclip`" + ` will start a new clipboard.
 It will also provide an address with which you can connect to the same clipboard with another device.
 Refer to https://github.com/quackduck/uniclip for more information`
-	detectedOs     = runtime.GOOS
 	listOfClients  = make([]*bufio.Writer, 0)
 	localClipboard string
-	lock           sync.Mutex
 	printDebugInfo = false
-	version        = "v2.0.0"
+	version        = "v2.0.1"
 )
 
 // TODO: Add a way to reconnect (if computer goes to sleep)
 func main() {
-	if len(os.Args) > 2 {
+	if len(os.Args) > 3 {
 		handleError(errors.New("too many arguments"))
 		fmt.Println(helpMsg)
 		return
@@ -73,7 +70,7 @@ func makeServer() {
 		return
 	}
 	defer l.Close()
-	port := strconv.FormatInt(int64(l.Addr().(*net.TCPAddr).Port), 10)
+	port := strconv.Itoa(l.Addr().(*net.TCPAddr).Port)
 	fmt.Println("Run", "`uniclip", getOutboundIP().String()+":"+port+"`", "to join this clipboard")
 	fmt.Println()
 	for {
@@ -109,9 +106,9 @@ func connectToServer(address string) {
 
 func monitorLocalClip(w *bufio.Writer) {
 	for {
-		lock.Lock()
+		//lock.Lock()
 		localClipboard = getLocalClip()
-		lock.Unlock()
+		//lock.Unlock()
 		debug("clipboard changed so sending it. localClipboard =", localClipboard)
 		err := sendClipboard(w, localClipboard)
 		if err != nil {
@@ -145,14 +142,9 @@ func monitorSentClips(r *bufio.Reader) {
 				}
 				foreignClipboard += s
 			}
-			lock.Lock() // don't let the goroutine that checks for changes do anything
 			setLocalClip(foreignClipboard)
 			localClipboard = foreignClipboard
-			lock.Unlock() // we've made sure the other goroutine won't have a false positive
 			debug("rcvd:", foreignClipboard)
-			if foreignClipboard == "" {
-				debug("received empty string")
-			}
 			for i, w := range listOfClients {
 				if w != nil {
 					debug("Sending received clipboard to", w)
@@ -182,19 +174,16 @@ func sendClipboard(w *bufio.Writer, clipboard string) error {
 		return err
 	}
 	err = w.Flush()
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func getLocalClip() string {
 	var out []byte
 	var err error
 	var cmd *exec.Cmd
-	if detectedOs == "darwin" {
+	if runtime.GOOS == "darwin" {
 		cmd = exec.Command("pbpaste")
-	} else if detectedOs == "windows" {
+	} else if runtime.GOOS == "windows" {
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
 	} else {
 		// Unix - check what's available
@@ -211,14 +200,11 @@ func getLocalClip() string {
 			os.Exit(2)
 		}
 	}
-	if out, err = cmd.CombinedOutput(); err != nil {
+	if out, err = cmd.Output(); err != nil {
 		handleError(err)
-		if exiterr, ok := err.(*exec.ExitError); ok {
-			fmt.Println(string(exiterr.Stderr))
-		}
 		return "An error occurred wile getting the local clipboard"
 	}
-	if detectedOs == "windows" {
+	if runtime.GOOS == "windows" {
 		return strings.TrimSuffix(string(out), "\r\n") // powershell's get-clipboard adds a windows newline to the end for some reason
 	}
 	return string(out)
@@ -226,9 +212,9 @@ func getLocalClip() string {
 
 func setLocalClip(s string) {
 	var copyCmd *exec.Cmd
-	if detectedOs == "darwin" {
+	if runtime.GOOS == "darwin" {
 		copyCmd = exec.Command("pbcopy")
-	} else if detectedOs == "windows" {
+	} else if runtime.GOOS == "windows" {
 		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard -Value "+"\""+s+"\"")
 	} else {
 		if _, err := exec.LookPath("xclip"); err == nil {
@@ -246,7 +232,7 @@ func setLocalClip(s string) {
 	}
 	var in io.WriteCloser
 	var err error
-	if detectedOs != "windows" { // the clipboard has already been set in the arguments for the windows command
+	if runtime.GOOS != "windows" { // the clipboard has already been set in the arguments for the windows command
 		in, err = copyCmd.StdinPipe()
 		if err != nil {
 			handleError(err)
@@ -257,7 +243,7 @@ func setLocalClip(s string) {
 		handleError(err)
 		return
 	}
-	if detectedOs != "windows" {
+	if runtime.GOOS != "windows" {
 		if _, err = in.Write([]byte(s)); err != nil {
 			handleError(err)
 			return
@@ -290,7 +276,7 @@ func handleError(err error) {
 	if err == io.EOF {
 		fmt.Println("Disconnected")
 	} else {
-		_, _ = fmt.Fprintln(os.Stderr, "error: ["+err.Error()+"]")
+		fmt.Fprintln(os.Stderr, "error: ["+err.Error()+"]")
 	}
 	return
 }
@@ -302,8 +288,8 @@ func debug(a ...interface{}) {
 }
 
 func argsHaveOption(long string, short string) (hasOption bool, foundAt int) {
-	for i := 1; i < len(os.Args); i++ { // start from 1 so executable path is not checked (isn't an argument)
-		if os.Args[i] == "--"+long || os.Args[i] == "-"+short {
+	for i, arg := range os.Args {
+		if arg == "--"+long || arg == "-"+short {
 			return true, i
 		}
 	}
