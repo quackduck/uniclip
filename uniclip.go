@@ -64,7 +64,7 @@ func main() {
 
 func makeServer() {
 	fmt.Println("Starting a new clipboard")
-	l, err := net.Listen("tcp4", "0.0.0.0:")
+	l, err := net.Listen("tcp4", ":")
 	if err != nil {
 		handleError(err)
 		return
@@ -94,11 +94,11 @@ func handleClient(c net.Conn) {
 
 func connectToServer(address string) {
 	c, err := net.Dial("tcp4", address)
-	defer c.Close()
 	if err != nil {
 		handleError(err)
 		return
 	}
+	defer func() { _ = c.Close() }()
 	fmt.Println("Connected to the clipboard")
 	go monitorSentClips(bufio.NewReader(c))
 	monitorLocalClip(bufio.NewWriter(c))
@@ -106,9 +106,7 @@ func connectToServer(address string) {
 
 func monitorLocalClip(w *bufio.Writer) {
 	for {
-		//lock.Lock()
 		localClipboard = getLocalClip()
-		//lock.Unlock()
 		debug("clipboard changed so sending it. localClipboard =", localClipboard)
 		err := sendClipboard(w, localClipboard)
 		if err != nil {
@@ -152,7 +150,6 @@ func monitorSentClips(r *bufio.Reader) {
 					if err != nil {
 						listOfClients[i] = nil
 						fmt.Println("error when trying to send the clipboard to a device. Will not contact that device again.")
-						//handleError(err)
 					}
 				}
 			}
@@ -181,12 +178,13 @@ func getLocalClip() string {
 	var out []byte
 	var err error
 	var cmd *exec.Cmd
-	if runtime.GOOS == "darwin" {
+
+	switch runtime.GOOS {
+	case "darwin":
 		cmd = exec.Command("pbpaste")
-	} else if runtime.GOOS == "windows" {
+	case "windows":
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
-	} else {
-		// Unix - check what's available
+	default:
 		if _, err = exec.LookPath("xclip"); err == nil {
 			cmd = exec.Command("xclip", "-out", "-selection", "clipboard")
 		} else if _, err = exec.LookPath("xsel"); err == nil {
@@ -212,11 +210,12 @@ func getLocalClip() string {
 
 func setLocalClip(s string) {
 	var copyCmd *exec.Cmd
-	if runtime.GOOS == "darwin" {
+	switch runtime.GOOS {
+	case "darwin":
 		copyCmd = exec.Command("pbcopy")
-	} else if runtime.GOOS == "windows" {
+	case "windows":
 		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard") //-Value "+"\""+s+"\"")
-	} else {
+	default:
 		if _, err := exec.LookPath("xclip"); err == nil {
 			copyCmd = exec.Command("xclip", "-in", "-selection", "clipboard")
 		} else if _, err = exec.LookPath("xsel"); err == nil {
@@ -255,7 +254,6 @@ func setLocalClip(s string) {
 		handleError(err)
 		return
 	}
-	return
 }
 
 func getOutboundIP() net.IP {
@@ -276,7 +274,6 @@ func handleError(err error) {
 	} else {
 		fmt.Fprintln(os.Stderr, "error: ["+err.Error()+"]")
 	}
-	return
 }
 
 func debug(a ...interface{}) {
