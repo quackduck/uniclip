@@ -71,8 +71,8 @@ chmod +x /usr/local/bin/uniclip
 
 ### Android
 ```sh
-curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_arm64/uniclip\?raw=true -o ~/../usr/bin/uniclip
-chmod +x ~/../usr/bin/uniclip
+curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_arm64/uniclip\?raw=true -o $PREFIX/usr/bin/uniclip
+chmod +x $PREFIX/usr/bin/uniclip
 ```
 Install the Termux app and Termux:API app from the Play Store.
 Then, install the Termux:API package from the command line (in Termux) using:
@@ -81,11 +81,16 @@ pkg install termux-api
 ```
 ### Windows
 
-Just grab a precompiled binary from this [directory](dist)
+Just grab a precompiled binary from [dist](dist)
 
+## Uninstalling
+Uninstalling Uniclip is very easy. If you used a package manager, use its uninstall feature. If not, just delete the Uniclip binary:
+
+On macOS or GNU/Linux, delete `/usr/local/bin/uniclip`  
+On Windows, delete it from wherever you installed it  
+On Termux, delete it from `$PREFIX/usr/bin/uniclip`
 
 ## Any other business
-
 Have a question, idea or just want to share something? Head over to [Discussions](https://github.com/quackduck/uniclip/discussions)
 
 Thanks to [Aaryan](https://github.com/aaryanporwal) for the idea!

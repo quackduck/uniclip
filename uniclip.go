@@ -148,7 +148,7 @@ func monitorSentClips(r *bufio.Reader) {
 			for i, w := range listOfClients {
 				if w != nil {
 					debug("Sending received clipboard to", w)
-					err := sendClipboard(w, foreignClipboard)
+					err = sendClipboard(w, foreignClipboard)
 					if err != nil {
 						listOfClients[i] = nil
 						fmt.Println("error when trying to send the clipboard to a device. Will not contact that device again.")
@@ -187,13 +187,13 @@ func getLocalClip() string {
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
 	} else {
 		// Unix - check what's available
-		if _, err := exec.LookPath("xclip"); err == nil {
+		if _, err = exec.LookPath("xclip"); err == nil {
 			cmd = exec.Command("xclip", "-out", "-selection", "clipboard")
-		} else if _, err := exec.LookPath("xsel"); err == nil {
+		} else if _, err = exec.LookPath("xsel"); err == nil {
 			cmd = exec.Command("xsel", "--output", "--clipboard")
-		} else if _, err := exec.LookPath("wl-paste"); err == nil {
+		} else if _, err = exec.LookPath("wl-paste"); err == nil {
 			cmd = exec.Command("wl-paste", "--no-newline")
-		} else if _, err := exec.LookPath("termux-clipboard-get"); err == nil {
+		} else if _, err = exec.LookPath("termux-clipboard-get"); err == nil {
 			cmd = exec.Command("termux-clipboard-get")
 		} else {
 			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip, wayland or Termux installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
@@ -215,15 +215,15 @@ func setLocalClip(s string) {
 	if runtime.GOOS == "darwin" {
 		copyCmd = exec.Command("pbcopy")
 	} else if runtime.GOOS == "windows" {
-		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard -Value "+"\""+s+"\"")
+		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard") //-Value "+"\""+s+"\"")
 	} else {
 		if _, err := exec.LookPath("xclip"); err == nil {
 			copyCmd = exec.Command("xclip", "-in", "-selection", "clipboard")
-		} else if _, err := exec.LookPath("xsel"); err == nil {
+		} else if _, err = exec.LookPath("xsel"); err == nil {
 			copyCmd = exec.Command("xsel", "--input", "--clipboard")
-		} else if _, err := exec.LookPath("wl-copy"); err == nil {
+		} else if _, err = exec.LookPath("wl-copy"); err == nil {
 			copyCmd = exec.Command("wl-copy")
-		} else if _, err := exec.LookPath("termux-clipboard-set"); err == nil {
+		} else if _, err = exec.LookPath("termux-clipboard-set"); err == nil {
 			copyCmd = exec.Command("termux-clipboard-set")
 		} else {
 			handleError(errors.New("sorry, uniclip won't work if you don't have xsel, xclip, wayland or Termux:API installed :(\nyou can create an issue at https://github.com/quackduck/uniclip/issues"))
@@ -232,12 +232,10 @@ func setLocalClip(s string) {
 	}
 	var in io.WriteCloser
 	var err error
-	if runtime.GOOS != "windows" { // the clipboard has already been set in the arguments for the windows command
-		in, err = copyCmd.StdinPipe()
-		if err != nil {
-			handleError(err)
-			return
-		}
+	in, err = copyCmd.StdinPipe()
+	if err != nil {
+		handleError(err)
+		return
 	}
 	if err = copyCmd.Start(); err != nil {
 		handleError(err)
@@ -253,7 +251,7 @@ func setLocalClip(s string) {
 			return
 		}
 	}
-	if err := copyCmd.Wait(); err != nil {
+	if err = copyCmd.Wait(); err != nil {
 		handleError(err)
 		return
 	}
