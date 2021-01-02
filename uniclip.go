@@ -64,7 +64,7 @@ func main() {
 
 func makeServer() {
 	fmt.Println("Starting a new clipboard")
-	l, err := net.Listen("tcp4", ":")
+	l, err := net.Listen("tcp4", ":") //nolint // complains about binding to all interfaces
 	if err != nil {
 		handleError(err)
 		return
@@ -182,7 +182,7 @@ func getLocalClip() string {
 	switch runtime.GOOS {
 	case "darwin":
 		cmd = exec.Command("pbpaste")
-	case "windows":
+	case "windows": //nolint // complains about literal string "windows" being used multiple times
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
 	default:
 		if _, err = exec.LookPath("xclip"); err == nil {

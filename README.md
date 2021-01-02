@@ -16,7 +16,7 @@ uniclip
 
 Example output:
 
-```
+```text
 Starting a new clipboard!
 Run `uniclip 192.168.86.24:51607` to join this clipboard
 
