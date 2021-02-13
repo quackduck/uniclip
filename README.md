@@ -26,7 +26,7 @@ Just enter what it says (`uniclip 192.168.86.24:51607`) on your other device wit
 
 You can even have multiple devices joined to the same clipboard (just run that same command on the new device).
 
-```
+```text
 Uniclip - Universal Clipboard
 With Uniclip, you can copy from one device and paste on another.
 
