@@ -94,6 +94,11 @@ func handleClient(c net.Conn) {
 
 func connectToServer(address string) {
 	c, err := net.Dial("tcp4", address)
+	if c == nil {
+		handleError(err)
+		fmt.Println("Could not connect to", address)
+		return
+	}
 	if err != nil {
 		handleError(err)
 		return
