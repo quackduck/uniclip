@@ -50,10 +50,8 @@ It will also provide an address with which you can connect to the same clipboard
 brew install quackduck/tap/uniclip
 ```
 or
-```sh
-curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_darwin_amd64/uniclip\?raw=true > /usr/local/bin/uniclip
-chmod +x /usr/local/bin/uniclip
-```
+
+Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `/usr/bin/uniclip`
 
 ### GNU/Linux
 
@@ -63,17 +61,13 @@ chmod +x /usr/local/bin/uniclip
 brew install quackduck/tap/uniclip
 ```
 or
-```sh
-curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_amd64/uniclip\?raw=true -o /usr/local/bin/uniclip # you might need to use sudo
-chmod +x /usr/local/bin/uniclip
-```
-*Note: This option is for amd64/x86_64 architectures. For other architectures, change the architecture (by referring to [dist/](dist)) in the url.*
+
+Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `/usr/bin/uniclip`
 
 ### Android
-```sh
-curl -sSL https://github.com/quackduck/uniclip/blob/master/dist/uniclip_linux_arm64/uniclip\?raw=true -o $PREFIX/usr/bin/uniclip
-chmod +x $PREFIX/usr/bin/uniclip
-```
+
+Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `$PREFIX/usr/bin/uniclip`
+
 Install the Termux app and Termux:API app from the Play Store.
 Then, install the Termux:API package from the command line (in Termux) using:
 ```sh
@@ -81,13 +75,13 @@ pkg install termux-api
 ```
 ### Windows
 
-Just grab a precompiled binary from [dist](dist)
+Just grab a precompiled binary from [releases](https://github.com/quackduck/uniclip/releases)
 
 ## Uninstalling
 Uninstalling Uniclip is very easy. If you used a package manager, use its uninstall feature. If not, just delete the Uniclip binary:
 
 On macOS or GNU/Linux, delete `/usr/local/bin/uniclip`  
-On Windows, delete it from wherever you installed it  
+On Windows, delete it from where you installed it  
 On Termux, delete it from `$PREFIX/usr/bin/uniclip`
 
 ## Any other business
