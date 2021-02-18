@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/gob"
 	"errors"
 	"fmt"
 	"io"
@@ -127,56 +128,37 @@ func monitorLocalClip(w *bufio.Writer) {
 func monitorSentClips(r *bufio.Reader) {
 	var foreignClipboard string
 	for {
-		s, err := r.ReadString('\n')
+		err := gob.NewDecoder(r).Decode(&foreignClipboard)
 		if err != nil {
+			if err == io.EOF {
+				return // no need to monitor: disconnected
+			}
 			handleError(err)
-			return
+			continue // continue getting next message
 		}
-		if s == "STARTCLIPBOARD\n" {
-			for {
-				s, err = r.ReadString('\n')
+		setLocalClip(foreignClipboard)
+		localClipboard = foreignClipboard
+		debug("rcvd:", foreignClipboard)
+		for i := range listOfClients {
+			if listOfClients[i] != nil {
+				err = sendClipboard(listOfClients[i], foreignClipboard)
 				if err != nil {
-					handleError(err)
-					return
-				}
-				if s == "ENDCLIPBOARD\n" {
-					foreignClipboard = strings.TrimSuffix(foreignClipboard, "\n")
-					break
-				}
-				foreignClipboard += s
-			}
-			setLocalClip(foreignClipboard)
-			localClipboard = foreignClipboard
-			debug("rcvd:", foreignClipboard)
-			for i, w := range listOfClients {
-				if w != nil {
-					debug("Sending received clipboard to", w)
-					err = sendClipboard(w, foreignClipboard)
-					if err != nil {
-						listOfClients[i] = nil
-						fmt.Println("error when trying to send the clipboard to a device. Will not contact that device again.")
-					}
+					listOfClients[i] = nil
+					fmt.Println("error when trying to send the clipboard to a device. Will not contact that device again.")
 				}
 			}
-			foreignClipboard = ""
 		}
+		foreignClipboard = ""
 	}
 }
 
 func sendClipboard(w *bufio.Writer, clipboard string) error {
-	var err error
-	clipString := "STARTCLIPBOARD\n" + clipboard + "\nENDCLIPBOARD\n"
-	if clipboard == "" {
-		debug("was going to send empty string but skipping")
-		return nil
-	}
 	debug("sent:", clipboard)
-	_, err = w.WriteString(clipString)
+	err := gob.NewEncoder(w).Encode(clipboard)
 	if err != nil {
 		return err
 	}
-	err = w.Flush()
-	return err
+	return w.Flush()
 }
 
 func getLocalClip() string {
@@ -234,9 +216,7 @@ func setLocalClip(s string) {
 			os.Exit(2)
 		}
 	}
-	var in io.WriteCloser
-	var err error
-	in, err = copyCmd.StdinPipe()
+	in, err := copyCmd.StdinPipe()
 	if err != nil {
 		handleError(err)
 		return
