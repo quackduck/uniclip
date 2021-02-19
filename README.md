@@ -64,6 +64,12 @@ or
 
 Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `/usr/bin/uniclip`
 
+#### Arch/Artix/Manjaro Linux:
+```sh
+yay -S uniclip # or paru -S uniclip
+```
+Thanks to [Scott Little](https://github.com/CodeLongAndProsper90) for submitting Uniclip to the AUR!
+
 ### Android
 
 Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `$PREFIX/usr/bin/uniclip`
