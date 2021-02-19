@@ -67,7 +67,7 @@ func main() {
 		secure = true
 		os.Args = removeElemFromSlice(os.Args, i) // delete the secure option and run again
 		fmt.Print("Password: ")
-		password, _ = terminal.ReadPassword(syscall.Stdin)
+		password, _ = terminal.ReadPassword(int(syscall.Stdin))
 		fmt.Println()
 		main()
 		return
