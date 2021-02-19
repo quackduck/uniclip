@@ -69,7 +69,7 @@ or, if you're using Arch/Artix/Manjaro Linux (btw):
 (paru|yay) -S uniclip
 ```
 
-###Android
+### Android
 
 Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `$PREFIX/usr/bin/uniclip`
 
