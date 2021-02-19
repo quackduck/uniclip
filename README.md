@@ -64,7 +64,12 @@ or
 
 Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `/usr/bin/uniclip`
 
-### Android
+or, if you're using Arch/Artix/Manjaro Linux (btw):
+```sh
+(paru|yay) -S uniclip
+```
+
+###Android
 
 Get an executable from [releases](https://github.com/quackduck/uniclip/releases) and install to `$PREFIX/usr/bin/uniclip`
 
