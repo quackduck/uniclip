@@ -2,9 +2,13 @@ package main
 
 import (
 	"bufio"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"encoding/gob"
 	"errors"
 	"fmt"
+	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"net"
 	"os"
@@ -12,7 +16,10 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
+
+	"golang.org/x/crypto/scrypt"
 )
 
 var (
@@ -33,11 +40,14 @@ Refer to https://github.com/quackduck/uniclip for more information`
 	localClipboard string
 	printDebugInfo = false
 	version        = "v2.0.1"
+	cryptoStrength = 16384
+	secure         = false
+	password       []byte
 )
 
 // TODO: Add a way to reconnect (if computer goes to sleep)
 func main() {
-	if len(os.Args) > 3 {
+	if len(os.Args) > 4 {
 		handleError(errors.New("too many arguments"))
 		fmt.Println(helpMsg)
 		return
@@ -49,6 +59,16 @@ func main() {
 	if hasOption, i := argsHaveOption("debug", "d"); hasOption {
 		printDebugInfo = true
 		os.Args = removeElemFromSlice(os.Args, i) // delete the debug option and run again
+		main()
+		return
+	}
+	// --secure encrypts your data
+	if hasOption, i := argsHaveOption("secure", "s"); hasOption {
+		secure = true
+		os.Args = removeElemFromSlice(os.Args, i) // delete the secure option and run again
+		fmt.Print("Password: ")
+		password, _ = terminal.ReadPassword(syscall.Stdin)
+		fmt.Println()
 		main()
 		return
 	}
@@ -113,7 +133,7 @@ func connectToServer(address string) {
 func monitorLocalClip(w *bufio.Writer) {
 	for {
 		localClipboard = getLocalClip()
-		debug("clipboard changed so sending it. localClipboard =", localClipboard)
+		//debug("clipboard changed so sending it. localClipboard =", localClipboard)
 		err := sendClipboard(w, localClipboard)
 		if err != nil {
 			handleError(err)
@@ -127,8 +147,9 @@ func monitorLocalClip(w *bufio.Writer) {
 
 func monitorSentClips(r *bufio.Reader) {
 	var foreignClipboard string
+	var foreignClipboardBytes []byte
 	for {
-		err := gob.NewDecoder(r).Decode(&foreignClipboard)
+		err := gob.NewDecoder(r).Decode(&foreignClipboardBytes)
 		if err != nil {
 			if err == io.EOF {
 				return // no need to monitor: disconnected
@@ -136,6 +157,11 @@ func monitorSentClips(r *bufio.Reader) {
 			handleError(err)
 			continue // continue getting next message
 		}
+		if secure {
+			foreignClipboardBytes, err = decrypt(password, foreignClipboardBytes)
+		}
+		foreignClipboard = string(foreignClipboardBytes)
+
 		setLocalClip(foreignClipboard)
 		localClipboard = foreignClipboard
 		debug("rcvd:", foreignClipboard)
@@ -144,7 +170,7 @@ func monitorSentClips(r *bufio.Reader) {
 				err = sendClipboard(listOfClients[i], foreignClipboard)
 				if err != nil {
 					listOfClients[i] = nil
-					fmt.Println("error when trying to send the clipboard to a device. Will not contact that device again.")
+					fmt.Println("Error when trying to send the clipboard to a device. Will not contact that device again.")
 				}
 			}
 		}
@@ -153,12 +179,84 @@ func monitorSentClips(r *bufio.Reader) {
 }
 
 func sendClipboard(w *bufio.Writer, clipboard string) error {
-	debug("sent:", clipboard)
-	err := gob.NewEncoder(w).Encode(clipboard)
+	var clipboardBytes []byte
+	var err error
+	if secure {
+		clipboardBytes, err = encrypt(password, []byte(clipboard))
+		if err != nil {
+			return err
+		}
+	} else {
+		clipboardBytes = []byte(clipboard)
+	}
+	err = gob.NewEncoder(w).Encode(clipboardBytes)
 	if err != nil {
 		return err
 	}
+	debug("sent:", clipboard)
+	//if secure {
+	//	debug("--secure is enabled, so actually sent as:", hex.EncodeToString(clipboardBytes))
+	//}
 	return w.Flush()
+}
+
+// Thanks to https://bruinsslot.jp/post/golang-crypto/ for crypto logic
+func encrypt(key, data []byte) ([]byte, error) {
+	key, salt, err := deriveKey(key, nil)
+	if err != nil {
+		return nil, err
+	}
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		return nil, err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = rand.Read(nonce); err != nil {
+		return nil, err
+	}
+	ciphertext := gcm.Seal(nonce, nonce, data, nil)
+	ciphertext = append(ciphertext, salt...)
+	return ciphertext, nil
+}
+
+func decrypt(key, data []byte) ([]byte, error) {
+	salt, data := data[len(data)-32:], data[:len(data)-32]
+	key, _, err := deriveKey(key, salt)
+	if err != nil {
+		return nil, err
+	}
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		return nil, err
+	}
+	nonce, ciphertext := data[:gcm.NonceSize()], data[gcm.NonceSize():]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return nil, err
+	}
+	return plaintext, nil
+}
+
+func deriveKey(password, salt []byte) ([]byte, []byte, error) {
+	if salt == nil {
+		salt = make([]byte, 32)
+		if _, err := rand.Read(salt); err != nil {
+			return nil, nil, err
+		}
+	}
+	key, err := scrypt.Key(password, salt, cryptoStrength, 8, 1, 32)
+	if err != nil {
+		return nil, nil, err
+	}
+	return key, salt, nil
 }
 
 func getLocalClip() string {
