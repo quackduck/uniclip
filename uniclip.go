@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"compress/flate"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -10,6 +12,7 @@ import (
 	"fmt"
 	"golang.org/x/crypto/ssh/terminal"
 	"io"
+	"io/ioutil"
 	"net"
 	"os"
 	"os/exec"
@@ -66,7 +69,7 @@ func main() {
 	if hasOption, i := argsHaveOption("secure", "s"); hasOption {
 		secure = true
 		os.Args = removeElemFromSlice(os.Args, i) // delete the secure option and run again
-		fmt.Print("Password: ")
+		fmt.Print("Password for --secure: ")
 		password, _ = terminal.ReadPassword(int(syscall.Stdin))
 		fmt.Println()
 		main()
@@ -157,11 +160,13 @@ func monitorSentClips(r *bufio.Reader) {
 			handleError(err)
 			continue // continue getting next message
 		}
+
+		// decrypt if needed
 		if secure {
 			foreignClipboardBytes, err = decrypt(password, foreignClipboardBytes)
 		}
 		foreignClipboard = string(foreignClipboardBytes)
-
+		//foreignClipboard = decompress(foreignClipboardBytes)
 		setLocalClip(foreignClipboard)
 		localClipboard = foreignClipboard
 		debug("rcvd:", foreignClipboard)
@@ -174,20 +179,20 @@ func monitorSentClips(r *bufio.Reader) {
 				}
 			}
 		}
-		foreignClipboard = ""
 	}
 }
 
+// sendClipboard compresses and then if secure is enabled, encrypts data
 func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var clipboardBytes []byte
 	var err error
+	//clipboardBytes = compress(clipboard)
+	//fmt.Printf("cmpr: %x\ndcmp: %x\nstr: %s\n\ncmpr better by %d\n", clipboardBytes, []byte(clipboard), clipboard, len(clipboardBytes)-len(clipboard))
 	if secure {
 		clipboardBytes, err = encrypt(password, []byte(clipboard))
 		if err != nil {
 			return err
 		}
-	} else {
-		clipboardBytes = []byte(clipboard)
 	}
 	err = gob.NewEncoder(w).Encode(clipboardBytes)
 	if err != nil {
@@ -259,7 +264,28 @@ func deriveKey(password, salt []byte) ([]byte, []byte, error) {
 	return key, salt, nil
 }
 
-func getLocalClip() string {
+func compress(str string) []byte {
+	var buf bytes.Buffer
+	zw, _ := flate.NewWriter(&buf, -1)
+	_, _ = zw.Write([]byte(str))
+	_ = zw.Close()
+	return buf.Bytes()
+}
+
+func decompress(b []byte) string {
+	var buf bytes.Buffer
+	_, _ = buf.Write(b)
+	zr := flate.NewReader(&buf)
+	decompressed, err := ioutil.ReadAll(zr)
+	if err != nil {
+		handleError(err)
+		return "Issues while decompressing clipboard"
+	}
+	_ = zr.Close()
+	return string(decompressed)
+}
+
+func runGetClipCommand() string {
 	var out []byte
 	var err error
 	var cmd *exec.Cmd
@@ -291,6 +317,14 @@ func getLocalClip() string {
 		return strings.TrimSuffix(string(out), "\r\n") // powershell's get-clipboard adds a windows newline to the end for some reason
 	}
 	return string(out)
+}
+
+func getLocalClip() string {
+	// hacky way to prevent empty clipboard TODO: find out why empty cb happens
+	str := runGetClipCommand()
+	for ; str != ""; str = runGetClipCommand() { // wait until it's not empty
+	}
+	return str
 }
 
 func setLocalClip(s string) {
