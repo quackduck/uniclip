@@ -80,7 +80,7 @@ func main() {
 		return
 	}
 	if len(os.Args) == 2 { // has exactly one argument
-		connectToServer(os.Args[1])
+		ConnectToServer(os.Args[1])
 		return
 	}
 	makeServer()
@@ -104,19 +104,21 @@ func makeServer() {
 			return
 		}
 		fmt.Println("Connected to a device")
-		go handleClient(c)
+		go HandleClient(c)
 	}
 }
 
-func handleClient(c net.Conn) {
+// Handle a client as a server
+func HandleClient(c net.Conn) {
 	w := bufio.NewWriter(c)
 	listOfClients = append(listOfClients, w)
 	defer c.Close()
-	go monitorSentClips(bufio.NewReader(c))
-	monitorLocalClip(w)
+	go MonitorSentClips(bufio.NewReader(c))
+	MonitorLocalClip(w)
 }
 
-func connectToServer(address string) {
+// Connect to the server (which starts a new clipboard)
+func ConnectToServer(address string) {
 	c, err := net.Dial("tcp4", address)
 	if c == nil {
 		handleError(err)
@@ -129,11 +131,12 @@ func connectToServer(address string) {
 	}
 	defer func() { _ = c.Close() }()
 	fmt.Println("Connected to the clipboard")
-	go monitorSentClips(bufio.NewReader(c))
-	monitorLocalClip(bufio.NewWriter(c))
+	go MonitorSentClips(bufio.NewReader(c))
+	MonitorLocalClip(bufio.NewWriter(c))
 }
 
-func monitorLocalClip(w *bufio.Writer) {
+// monitors for changes to the local clipboard and writes them to w
+func MonitorLocalClip(w *bufio.Writer) {
 	for {
 		localClipboard = getLocalClip()
 		//debug("clipboard changed so sending it. localClipboard =", localClipboard)
@@ -148,7 +151,8 @@ func monitorLocalClip(w *bufio.Writer) {
 	}
 }
 
-func monitorSentClips(r *bufio.Reader) {
+// monitors for clipboards sent through r
+func MonitorSentClips(r *bufio.Reader) {
 	var foreignClipboard string
 	var foreignClipboardBytes []byte
 	for {

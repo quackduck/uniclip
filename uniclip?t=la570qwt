@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+
+        <meta name="description" content="Upload files and make them available for your friends. Think of it as Pastebin for files. Registration is not required. Large files are supported.">
+        <meta name="author" content="Espen Braastad">
+        <link rel="icon" href="https://filebin.net/static/img/favicon.png">
+
+        <title>Filebin</title>
+
+        
+        <link rel="stylesheet" href="https://filebin.net/static/bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="https://filebin.net/static/css/upload.css"/>
+        <link rel="stylesheet" href="https://filebin.net/static/css/custom.css"/>
+        <link rel="stylesheet" href="https://filebin.net/static/css/font-awesome.css"/>
+    </head>
+
+    <body>
+        <div class="container h-100">
+            <div class="row h-100 align-items-center">
+                <div class="col-12">
+                    <div class="card mx-auto" style="max-width: 30rem;">
+                        <h5 class="card-header text-center">
+                            File download
+                        </h5>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <dl class="row">
+                                                <dt class="col">File name</dt>
+                                                <dd class="col">uniclip</dd>
+                                                <dt class="col">File size</dt>
+                                                <dd class="col">2.6 MB</dd>
+                                                <dt class="col">Content type</dt>
+                                                <dd class="col">application/octet-stream</dd>
+                                                <dt class="col">Uploaded</dt>
+                                                <dd class="col">9 minutes ago</dd>
+                                            </dl>
+                                        </small>
+                                    </p>
+                                </div></div>
+                        </div>
+
+                        <div class="card-footer">
+                            <p class="card-text">
+                                <div class="text-center"><a href="https://filebin.net/br1ruq8duxcwtors/uniclip?t=l5gr97wb" class="btn btn-primary">
+                                                <i class="fa fa-cloud-download"></i>
+                                                Download
+                                            </a><a href="https://filebin.net/br1ruq8duxcwtors" class="btn btn-light">
+                                                <i class="fa fa-list-ul"></i>
+                                                File listing
+                                            </a></div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
