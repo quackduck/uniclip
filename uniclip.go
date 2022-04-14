@@ -103,7 +103,7 @@ func makeServer() {
 			handleError(err)
 			return
 		}
-		fmt.Println("Connected to a device")
+		fmt.Println("Connected to device at " + c.RemoteAddr().String())
 		go HandleClient(c)
 	}
 }
@@ -168,8 +168,16 @@ func MonitorSentClips(r *bufio.Reader) {
 		// decrypt if needed
 		if secure {
 			foreignClipboardBytes, err = decrypt(password, foreignClipboardBytes)
+			if err != nil {
+				handleError(err)
+				continue
+			}
 		}
 		foreignClipboard = string(foreignClipboardBytes)
+		// hacky way to prevent empty clipboard TODO: find out why empty cb happens
+		if foreignClipboard == "" {
+			continue
+		}
 		//foreignClipboard = decompress(foreignClipboardBytes)
 		setLocalClip(foreignClipboard)
 		localClipboard = foreignClipboard
@@ -324,10 +332,10 @@ func runGetClipCommand() string {
 }
 
 func getLocalClip() string {
-	// hacky way to prevent empty clipboard TODO: find out why empty cb happens
 	str := runGetClipCommand()
-	for ; str != ""; str = runGetClipCommand() { // wait until it's not empty
-	}
+	//for ; str == ""; str = runGetClipCommand() { // wait until it's not empty
+	//	time.Sleep(time.Millisecond * 100)
+	//}
 	return str
 }
 
