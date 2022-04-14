@@ -42,7 +42,7 @@ Refer to https://github.com/quackduck/uniclip for more information`
 	listOfClients  = make([]*bufio.Writer, 0)
 	localClipboard string
 	printDebugInfo = false
-	version        = "v2.0.1"
+	version        = "dev"
 	cryptoStrength = 16384
 	secure         = false
 	password       []byte
