@@ -172,9 +172,8 @@ func MonitorSentClips(r *bufio.Reader) {
 				handleError(err)
 				continue
 			}
-		} else {
-			foreignClipboardBytes = []byte(foreignClipboard)
 		}
+
 		foreignClipboard = string(foreignClipboardBytes)
 		// hacky way to prevent empty clipboard TODO: find out why empty cb happens
 		if foreignClipboard == "" {
@@ -200,16 +199,16 @@ func MonitorSentClips(r *bufio.Reader) {
 func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var clipboardBytes []byte
 	var err error
+	clipboardBytes = []byte(clipboard)
 	//clipboardBytes = compress(clipboard)
 	//fmt.Printf("cmpr: %x\ndcmp: %x\nstr: %s\n\ncmpr better by %d\n", clipboardBytes, []byte(clipboard), clipboard, len(clipboardBytes)-len(clipboard))
 	if secure {
-		clipboardBytes, err = encrypt(password, []byte(clipboard))
+		clipboardBytes, err = encrypt(password, clipboardBytes)
 		if err != nil {
 			return err
 		}
-	} else {
-		clipboardBytes = []byte(clipboard)
 	}
+
 	err = gob.NewEncoder(w).Encode(clipboardBytes)
 	if err != nil {
 		return err
