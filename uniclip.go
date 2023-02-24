@@ -173,6 +173,7 @@ func MonitorSentClips(r *bufio.Reader) {
 				continue
 			}
 		}
+
 		foreignClipboard = string(foreignClipboardBytes)
 		// hacky way to prevent empty clipboard TODO: find out why empty cb happens
 		if foreignClipboard == "" {
@@ -198,14 +199,16 @@ func MonitorSentClips(r *bufio.Reader) {
 func sendClipboard(w *bufio.Writer, clipboard string) error {
 	var clipboardBytes []byte
 	var err error
+	clipboardBytes = []byte(clipboard)
 	//clipboardBytes = compress(clipboard)
 	//fmt.Printf("cmpr: %x\ndcmp: %x\nstr: %s\n\ncmpr better by %d\n", clipboardBytes, []byte(clipboard), clipboard, len(clipboardBytes)-len(clipboard))
 	if secure {
-		clipboardBytes, err = encrypt(password, []byte(clipboard))
+		clipboardBytes, err = encrypt(password, clipboardBytes)
 		if err != nil {
 			return err
 		}
 	}
+
 	err = gob.NewEncoder(w).Encode(clipboardBytes)
 	if err != nil {
 		return err
@@ -345,7 +348,7 @@ func setLocalClip(s string) {
 	case "darwin":
 		copyCmd = exec.Command("pbcopy")
 	case "windows":
-		copyCmd = exec.Command("powershell.exe", "-command", "Set-Clipboard") //-Value "+"\""+s+"\"")
+		copyCmd = exec.Command("clip")
 	default:
 		if _, err := exec.LookPath("xclip"); err == nil {
 			copyCmd = exec.Command("xclip", "-in", "-selection", "clipboard")
@@ -369,15 +372,13 @@ func setLocalClip(s string) {
 		handleError(err)
 		return
 	}
-	if runtime.GOOS != "windows" {
-		if _, err = in.Write([]byte(s)); err != nil {
-			handleError(err)
-			return
-		}
-		if err = in.Close(); err != nil {
-			handleError(err)
-			return
-		}
+	if _, err = in.Write([]byte(s)); err != nil {
+		handleError(err)
+		return
+	}
+	if err = in.Close(); err != nil {
+		handleError(err)
+		return
 	}
 	if err = copyCmd.Wait(); err != nil {
 		handleError(err)
