@@ -68,7 +68,7 @@ Get an executable from [releases](https://github.com/quackduck/uniclip/releases)
 ```sh
 yay -S uniclip # or paru -S uniclip
 ```
-Thanks to [Scott Little](https://github.com/CodeLongAndProsper90) for submitting Uniclip to the AUR!
+Thanks to [@CodeLongAndProsper90](https://github.com/CodeLongAndProsper90) for submitting Uniclip to the AUR!
 
 ### Android
 
@@ -93,4 +93,4 @@ On Termux, delete it from `$PREFIX/usr/bin/uniclip`
 ## Any other business
 Have a question, idea or just want to share something? Head over to [Discussions](https://github.com/quackduck/uniclip/discussions)
 
-Thanks to [Aaryan](https://github.com/aaryanporwal) for the idea!
+Thanks to [@aaryanporwal](https://github.com/aaryanporwal) for the idea!
