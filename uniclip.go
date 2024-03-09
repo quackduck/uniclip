@@ -33,6 +33,7 @@ With Uniclip, you can copy from one device and paste on another.
 Usage: uniclip [--secure/-s] [--debug/-d] [ <address> | --help/-h ]
 Examples:
    uniclip                                   # start a new clipboard
+   uniclip -p 6666                           # start a new clipboard on a set port number
    uniclip 192.168.86.24:53701               # join the clipboard at 192.168.86.24:53701
    uniclip -d                                # start a new clipboard with debug output
    uniclip -d --secure 192.168.86.24:53701   # join the clipboard with debug output and enable encryption
@@ -46,6 +47,7 @@ Refer to https://github.com/quackduck/uniclip for more information`
 	cryptoStrength = 16384
 	secure         = false
 	password       []byte
+	port           = 0
 )
 
 // TODO: Add a way to reconnect (if computer goes to sleep)
@@ -75,6 +77,26 @@ func main() {
 		main()
 		return
 	}
+	if hasOption, i := argsHaveOption("port", "p"); hasOption {
+		os.Args = removeElemFromSlice(os.Args, i) // delete the port option
+		if port > 0 {
+			fmt.Fprintln(os.Stderr, "Only one port number allowed")
+			os.Exit(1)
+		}
+		if len(os.Args) < i+1 {
+			fmt.Fprintln(os.Stderr, "Missing port number")
+			os.Exit(1)
+		}
+		requestedPort, err := strconv.Atoi(os.Args[i])
+		if err != nil || requestedPort < 1 || requestedPort > 65534 {
+			fmt.Fprintln(os.Stderr, "Invalid port number")
+			os.Exit(1)
+		}
+		os.Args = removeElemFromSlice(os.Args, i) // delete the port argument and run again
+		port = requestedPort
+		main()
+		return
+	}
 	if hasOption, _ := argsHaveOption("version", "v"); hasOption {
 		fmt.Println(version)
 		return
@@ -88,7 +110,11 @@ func main() {
 
 func makeServer() {
 	fmt.Println("Starting a new clipboard")
-	l, err := net.Listen("tcp4", ":") //nolint // complains about binding to all interfaces
+	listenPortString := ":"
+	if port > 0 {
+		listenPortString = ":" + strconv.Itoa(port)
+	}
+	l, err := net.Listen("tcp4", listenPortString) //nolint // complains about binding to all interfaces
 	if err != nil {
 		handleError(err)
 		return

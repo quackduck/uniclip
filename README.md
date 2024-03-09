@@ -33,6 +33,7 @@ With Uniclip, you can copy from one device and paste on another.
 Usage: uniclip [--secure/-s] [--debug/-d] [ <address> | --help/-h ]
 Examples:
    uniclip                                   # start a new clipboard
+   uniclip -p 53701                          # start a new clipboard on the provided port
    uniclip 192.168.86.24:53701               # join the clipboard at 192.168.86.24:53701
    uniclip -d                                # start a new clipboard with debug output
    uniclip -d --secure 192.168.86.24:53701   # join the clipboard with debug output and enable encryption
